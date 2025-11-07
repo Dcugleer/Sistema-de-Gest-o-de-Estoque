@@ -1,0 +1,297 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Empresas (multi-CNPJ)
+model Company {
+  id                String   @id @default(cuid())
+  cnpj              String   @unique
+  corporateName     String
+  tradeName         String
+  email             String
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relacionamentos
+  users             User[]
+  products          Product[]
+  warehouses        Warehouse[]
+  orders            Order[]
+  erpIntegrations   ErpIntegration[]
+  
+  @@map("companies")
+}
+
+// Usuários com permissões
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  password    String
+  role        UserRole @default(OPERATOR)
+  isActive    Boolean  @default(true)
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
+  
+  @@map("users")
+}
+
+// Papéis de usuário
+enum UserRole {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+// Produtos
+model Product {
+  id          String   @id @default(cuid())
+  sku         String
+  ean         String?
+  name        String
+  description String?
+  category    String?
+  brand       String?
+  unit        String?
+  weight      Float?
+  dimensions  String?
+  cost        Float?
+  price       Float?
+  minStock    Int?
+  maxStock    Int?
+  isActive    Boolean  @default(true)
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stockItems  StockItem[]
+  orderItems  OrderItem[]
+  stockMovements StockMovement[]
+  
+  @@unique([companyId, sku])
+  @@map("products")
+}
+
+// Armazéns/Endereços de estoque
+model Warehouse {
+  id          String   @id @default(cuid())
+  code        String
+  name        String
+  address     String?
+  isActive    Boolean  @default(true)
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  locations   Location[]
+  stockItems  StockItem[]
+  stockMovements StockMovement[]
+  
+  @@unique([companyId, code])
+  @@map("warehouses")
+}
+
+// Posições de endereçamento
+model Location {
+  id           String   @id @default(cuid())
+  code         String
+  aisle        String?
+  rack         String?
+  level        String?
+  position     String?
+  warehouseId  String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relacionamentos
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  stockItems   StockItem[]
+  stockMovements StockMovement[]
+  
+  @@unique([warehouseId, code])
+  @@map("locations")
+}
+
+// Itens em estoque
+model StockItem {
+  id          String   @id @default(cuid())
+  quantity    Int      @default(0)
+  reserved    Int      @default(0)
+  available   Int      @default(0)
+  productId   String
+  warehouseId String
+  locationId  String?
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  
+  @@unique([productId, warehouseId, locationId])
+  @@map("stock_items")
+}
+
+// Movimentações de estoque
+model StockMovement {
+  id          String           @id @default(cuid())
+  type        MovementType
+  quantity    Int
+  reason      String?
+  productId   String
+  warehouseId String
+  locationId  String?
+  userId      String
+  companyId   String
+  createdAt   DateTime         @default(now())
+  
+  // Relacionamentos
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("stock_movements")
+}
+
+// Tipos de movimentação
+enum MovementType {
+  IN
+  OUT
+  TRANSFER
+  ADJUSTMENT
+}
+
+// Pedidos
+model Order {
+  id            String      @id @default(cuid())
+  number        String
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  status        OrderStatus @default(NEW)
+  priority      OrderPriority @default(NORMAL)
+  totalAmount   Float?
+  notes         String?
+  companyId     String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relacionamentos
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+  
+  @@unique([companyId, number])
+  @@map("orders")
+}
+
+// Status dos pedidos
+enum OrderStatus {
+  NEW
+  PROCESSING
+  PICKING
+  PICKED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// Prioridade dos pedidos
+enum OrderPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// Itens do pedido
+model OrderItem {
+  id          String   @id @default(cuid())
+  quantity    Int
+  unitPrice   Float?
+  totalPrice  Float?
+  productId   String
+  orderId     String
+  pickedQty   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("order_items")
+}
+
+// Integrações com ERPs
+model ErpIntegration {
+  id          String   @id @default(cuid())
+  name        String
+  type        ErpType
+  apiKey      String?
+  apiSecret   String?
+  apiUrl      String?
+  isActive    Boolean  @default(true)
+  lastSyncAt  DateTime?
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  @@unique([companyId, type])
+  @@map("erp_integrations")
+}
+
+// Tipos de ERP
+enum ErpType {
+  BLING
+  TINY
+  OMOLOG
+  CUSTOM
+}
+
+// Custos operacionais
+model OperationalCost {
+  id          String   @id @default(cuid())
+  description String
+  category    String
+  amount      Float
+  date        DateTime
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("operational_costs")
+}
