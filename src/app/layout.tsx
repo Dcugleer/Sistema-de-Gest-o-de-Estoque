@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ToastContainer } from "@/shared/components/Toast";
 
-// TODO: Separar providers em camada de infraestrutura futuramente
+// TODO: Move providers to infrastructure layer in future refactor
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,11 +16,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Função para validar variáveis de ambiente
-function getEnvVar(key: string, fallback: string): string {
+// Utility to validate environment variables with optional logging
+function getEnvVar(key: string, fallback: string, logInProd = false): string {
   const value = process.env[key];
   if (!value) {
-    // TODO: Adicionar logging para variáveis ausentes
+    if (process.env.NODE_ENV === "development" || logInProd) {
+      // Log missing env variable (never expose sensitive info in production)
+      console.warn(`[Env Warning] Environment variable '${key}' not set. Using fallback: '${fallback}'`);
+    }
     return fallback;
   }
   return value;
@@ -61,13 +64,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // TODO: Adicionar suporte a internacionalização (i18n)
+  // TODO: Add i18n support (Next Intl or similar)
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {/* Providers devem ser desacoplados da UI principal */}
+        {/* Providers should be decoupled from main UI */}
         <QueryProvider>
           {children}
           <Toaster />
