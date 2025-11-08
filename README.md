@@ -1,4 +1,3 @@
-
 ## ✨ Stack de Tecnologias
 
 Este PROJETO oferece uma base robusta construída com:
@@ -38,7 +37,7 @@ Este PROJETO oferece uma base robusta construída com:
 - **📅 Date-fns** – Biblioteca moderna de utilitários para datas em JavaScript
 - **🪝 ReactUse** – Coleção de hooks essenciais para desenvolvimento moderno em React
 
-## 🎯 Por que usar este Scaffold?
+## 🎯 Por que usar este Projeto?
 
 - **🏎️ Desenvolvimento Rápido** – Ferramentas pré-configuradas e melhores práticas
 - **🎨 UI Bonita** – Biblioteca completa de componentes shadcn/ui com interações avançadas
@@ -73,12 +72,70 @@ Abra [http://localhost:3000](http://localhost:3000) para ver sua aplicação rod
 
 ```
 src/
+├── domain/              # Entidades e interfaces do domínio
+├── application/         # Serviços e casos de uso
+├── infrastructure/      # Implementações técnicas (DB, API, cache)
+├── presentation/        # Controllers, rotas, views
+├── shared/              # Tipos, utils, hooks comuns
 ├── app/                 # Páginas do App Router do Next.js
 ├── components/          # Componentes React reutilizáveis
 │   └── ui/             # Componentes shadcn/ui
 ├── hooks/              # Hooks personalizados do React
 └── lib/                # Funções utilitárias e configurações
 ```
+
+## 🛠️ Contribuindo com o Projeto
+
+Siga o fluxo abaixo para garantir qualidade e rastreabilidade:
+
+1. **Crie uma branch para sua alteração**
+   ```bash
+   git checkout -b feature/nome-da-feature
+   ```
+
+2. **Faça commits semânticos**
+   - Use prefixos: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, etc.
+   - Exemplo:
+     ```bash
+     git commit -m "feat: add user authentication flow"
+     ```
+
+3. **Envie sua branch para o GitHub**
+   ```bash
+   git push origin feature/nome-da-feature
+   ```
+
+4. **Abra um Pull Request**
+   - Descreva claramente o que foi feito.
+   - Aguarde revisão e aprovação.
+
+5. **Testes automatizados**
+   - Execute `npm test` antes de abrir o PR.
+   - O CI (GitHub Actions) irá validar lint e testes automaticamente.
+
+6. **Merge após aprovação**
+   - Só faça merge após aprovação de pelo menos um revisor.
+
+7. **Proteção de branch**
+   - Commits diretos na `main`/`master` são bloqueados.
+   - Sempre use Pull Request.
+
+## 🏛️ Arquitetura do Projeto
+
+- **Clean Architecture**: Separação clara entre domínio, aplicação, infraestrutura e apresentação.
+- **Controllers**: Orquestram requisições e respostas.
+- **Services**: Regras de negócio.
+- **Repositories**: Persistência de dados.
+- **UI**: Desacoplada da lógica de negócio.
+
+## 🚦 Convenções e Boas Práticas
+
+- Padronize nomes de arquivos, funções e variáveis em inglês.
+- Documente funções e componentes.
+- Adote testes unitários e integrados.
+- Use variáveis de ambiente com fallback e validação.
+- Adote mensagens de commit semânticas.
+- Siga o fluxo de Pull Request para toda alteração.
 
 ## 🎨 Funcionalidades & Componentes Disponíveis
 
@@ -115,7 +172,7 @@ Este PROJETO inclui um conjunto abrangente de ferramentas modernas para desenvol
 - **Hooks Essenciais**: 100+ hooks úteis do ReactUse para padrões comuns
 
 
-div align="center">
+</div align="center">
 
 📧 Contato do Autor
 
@@ -130,4 +187,14 @@ LinkedIn: https://www.linkedin.com/in/denis-cugler/
 Website / Portfólio: (https://denis-cugler.vercel.app/)
 
 </div>
+
+---
+
+> **ℹ️ Sempre que alterar este README.md, execute:**
+> ```bash
+> git add README.md
+> git commit -m "docs: update README with latest conventions and architecture"
+> git push origin sua-branch
+> ```
+> E abra um Pull Request para revisão e merge!
 
