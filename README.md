@@ -68,7 +68,33 @@ npm start
 
 Abra [http://localhost:3000](http://localhost:3000) para ver sua aplicação rodando.
 
-## 📁 Estrutura do Projeto
+## ⚙️ Configuração de Ambiente
+
+Antes de iniciar, crie o arquivo `.env` na raiz do projeto:
+
+```bash
+cp .env.example .env
+```
+
+Preencha o `.env` com suas credenciais reais (NUNCA envie para o GitHub):
+
+```
+DATABASE_URL="postgresql://usuario:senha@host:5432/database?schema=public"
+SUPABASE_URL="https://<projeto>.supabase.co"
+SUPABASE_ANON_KEY="sua-chave-anon"
+```
+
+No deploy (Vercel, Netlify, etc), configure as variáveis de ambiente diretamente na plataforma, nunca suba o `.env` para o repositório.
+
+Execute as migrations para criar o banco:
+
+```bash
+npx prisma migrate dev
+```
+
+Se a variável `DATABASE_URL` não estiver definida, o Prisma não irá inicializar e você verá erros de conexão.
+
+## �📁 Estrutura do Projeto
 
 ```
 src/
@@ -187,14 +213,4 @@ LinkedIn: https://www.linkedin.com/in/denis-cugler/
 Website / Portfólio: (https://denis-cugler.vercel.app/)
 
 </div>
-
----
-
-> **ℹ️ Sempre que alterar este README.md, execute:**
-> ```bash
-> git add README.md
-> git commit -m "docs: update README with latest conventions and architecture"
-> git push origin sua-branch
-> ```
-> E abra um Pull Request para revisão e merge!
 
