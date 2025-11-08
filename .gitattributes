@@ -1,0 +1,10 @@
+# Padroniza finais de linha para LF em todos os arquivos de texto
+* text=auto eol=lf
+
+# Mantém arquivos binários sem conversão
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
